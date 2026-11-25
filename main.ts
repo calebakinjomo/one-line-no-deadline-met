@@ -2,7 +2,7 @@
 // make.fun competition u-markk-st-one-line-no-deadline-met-6adc00ce
 // Writes exactly one line (<=200 chars) excusing a missed deadline to /output/entry.txt
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const MAX_CHARS = 200;
 
@@ -25,3 +25,12 @@ if (
 
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", ENTRY + "\n", "utf8");
+
+// Verify the write landed byte-exact: read the file back and fail loudly
+// if anything (encoding, truncation, stray bytes) altered the entry.
+const written = readFileSync("/output/entry.txt", "utf8");
+if (written !== ENTRY + "\n") {
+  throw new Error(
+    `Write verification failed: /output/entry.txt does not match the entry (${written.length} chars written, expected ${ENTRY.length + 1})`,
+  );
+}
